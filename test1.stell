@@ -1,0 +1,52 @@
+mod ltbs {
+    mod version = 1.0.0
+    version = 3.8.4
+    tags = [
+        gameplay, technologies
+    ]
+}
+
+technology mytech : physics, rare {
+    category = computing
+}
+
+tradition category discipline : tree_12_11 {
+    desc = switch(locale) {
+        l_english: "discipline"
+        l_french: discipline_in_french
+        default: "discipline"
+    }
+
+    adopt = an_ida
+    tradition = [
+        tradition an_id1 {
+            
+        }
+        an_id2
+        an_id3
+        an_id4
+        an_id5
+    ]
+    finish = an_idf
+    
+    
+}
+
+ascension perk we_are_legion {
+
+}
+
+label discipline_in_french = "Discipline"
+
+origin greatly_divided {
+    desc = "Greatly Divided"
+}
+
+label gready_hoarder = switch(locale){
+    default:
+        "Greedy Hoarder"
+}
+
+civic greedy_hoarder {
+    desc = greedy_hoarder
+}
