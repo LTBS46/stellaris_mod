@@ -1,2 +1,3 @@
 /mod
 /target_antlr
+*/__pycache__
