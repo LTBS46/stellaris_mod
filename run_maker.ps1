@@ -2,9 +2,13 @@ param(
     [String]$mod="test1.stell"
 )
 
-$path = Join-Path -Path .\mod -ChildPath $mod.BaseName
+$base = python .\base_name.py $mod
 
-Remove-Item $path -Recurse
+$path = Join-Path -Path .\mod -ChildPath $base
+
+if (Test-Path $path) {
+    Remove-Item $path -Recurse
+}
 
 $folder = New-Item -Path $path -ItemType Directory
 
