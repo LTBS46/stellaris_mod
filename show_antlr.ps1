@@ -3,7 +3,7 @@ param(
     [String]$mode="gui"
 )
 
-$python_path = python .\python_path.py
+$python_path = Invoke-Expression "python .\python_path.py"
 
 $antlr_path = Join-Path -Path $python_path -ChildPath antlr4-parse.exe
 

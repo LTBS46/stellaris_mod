@@ -2,7 +2,7 @@ param(
     [String]$mod="test1.stell"
 )
 
-$base = python .\base_name.py $mod
+$base = Invoke-Expression "python .\base_name.py $mod"
 
 $path = Join-Path -Path .\mod -ChildPath $base
 
@@ -12,4 +12,4 @@ if (Test-Path $path) {
 
 $folder = New-Item -Path $path -ItemType Directory
 
-python mod_maker.py $folder $mod
+Invoke-Expression "python mod_maker.py $folder $mod"
