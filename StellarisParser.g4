@@ -70,6 +70,7 @@ technology:
     (COMMA (RARE | DANGEROUS))?
     LCURLY
     CATEGORY EQ ID
+    description?
     RCURLY
     ;
 
@@ -78,7 +79,9 @@ label:
     ;
     
 aperk:
-    ASCENSION PERK name=ID LCURLY RCURLY
+    ASCENSION PERK name=ID LCURLY
+    description?
+    RCURLY
     ;
     
 country_event:
@@ -95,20 +98,20 @@ tradition_category:
     description?
     valid_empire?
     visible_empire?
-    ADOPT EQ (tradition_item | adopt_id=ID)
+    ADOPT EQ (ta=tradition_item | adopt_id=ID)
     TRADITION EQ LSQUAR
-        (tradition_item | n1=ID)
-        (tradition_item | n2=ID)
-        (tradition_item | n3=ID)
-        (tradition_item | n4=ID)
-        (tradition_item | n5=ID)
+        (t1=tradition_item | n1=ID)
+        (t2=tradition_item | n2=ID)
+        (t3=tradition_item | n3=ID)
+        (t4=tradition_item | n4=ID)
+        (t5=tradition_item | n5=ID)
     RSQUAR
-    FINISH EQ (tradition_item | finish_id=ID)
+    FINISH EQ (tf=tradition_item | finish_id=ID)
     RCURLY
     ;
 
 tradition_item:
-    TRADITION ID LCURLY
+    TRADITION name=ID LCURLY
     description?  
     RCURLY;
 
