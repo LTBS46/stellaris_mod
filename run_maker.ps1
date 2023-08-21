@@ -1,5 +1,11 @@
-Remove-Item mod -Recurse
+param(
+    [String]$mod="test1.stell"
+)
 
-$folder = New-Item -Path .\mod -ItemType Directory
+$path = Join-Path -Path .\mod -ChildPath $mod.BaseName
 
-python3.10 mod_maker.py .\mod .\test1.stell
+Remove-Item $path -Recurse
+
+$folder = New-Item -Path $path -ItemType Directory
+
+python mod_maker.py $folder $mod

@@ -17,7 +17,7 @@ class StellarisListener(StellarisParserListener):
 
     def enterTradition_category(self, ctx:StellarisParser.Tradition_categoryContext):
         name = ctx.name.text
-        self._mod_content.add_tradition_cateogries(name, ctx.tree.text)
+        self._mod_content.add_tradition_categories(name, ctx.tree.text)
         sub = ctx.n1
         if sub is not None: # else enterTradition_item will be called by the walker
             self._mod_content.tradition_categories[name].tradition_1 = sub.text        
@@ -33,11 +33,9 @@ class StellarisListener(StellarisParserListener):
         sub = ctx.n5
         if sub is not None: # else enterTradition_item will be called by the walker
             self._mod_content.tradition_categories[name].tradition_5 = sub.text
-
         sub = ctx.adopt_id
         if sub is not None: # else enterTradition_item will be called by the walker
             self._mod_content.tradition_categories[name].tradition_adopt = sub.text
-
         sub = ctx.finish_id
         if sub is not None: # else enterTradition_item will be called by the walker
             self._mod_content.tradition_categories[name].tradition_finish = sub.text
@@ -45,7 +43,11 @@ class StellarisListener(StellarisParserListener):
         
 
     def enterTradition_item(self, ctx:StellarisParser.Tradition_itemContext):
-        print(ctx.parentCtx)
+        kind = type(ctx.parentCtx)
+        if kind == StellarisParser.Tradition_categoryContext:
+            print(ctx, "is in a Tradition Category")
+        else:
+            print(ctx, "is somwhere else")
 
     def enterDescriptor(self, ctx:StellarisParser.DescriptorContext):
         name = ctx.mod_name.text
