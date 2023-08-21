@@ -1,4 +1,6 @@
-param([Boolean]$show_path=$false)
+param(
+    [Boolean]$show_path=$false
+)
 
 $path = ".\target_antlr"
 
@@ -10,7 +12,7 @@ $folder = New-Item -Path .\target_antlr -ItemType Directory
 
 if (Test-Path $folder) {}
 
-$python_path = Invoke-Expression "python .\python_path.py"
+$python_path = Invoke-Expression "python .\utils\python_path.py"
 
 if ($show_path) {
     Write-Output $python_path
