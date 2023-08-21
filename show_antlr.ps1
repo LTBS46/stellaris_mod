@@ -1,10 +1,11 @@
-param([String]$prog="test1.stell")
+param(
+    [String]$prog="test1.stell",
+    [String]$mode="gui"
+)
 
 $python_path = python .\python_path.py
 
 $antlr_path = Join-Path -Path $python_path -ChildPath antlr4-parse.exe
 
-$antlr_arg = ".\StellarisLexer.g4 .\StellarisParser.g4 mod -gui -tokens -trace"
-
-Get-Content $prog | Invoke-Expression "$antlr_path $antlr_arg"
- 
+Start-Process -FilePath $antlr_path -NoNewWindow -RedirectStandardInput $prog `
+    -ArgumentList ".\StellarisLexer.g4", ".\StellarisParser.g4", "mod", "-$mode"
