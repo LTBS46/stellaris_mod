@@ -17,6 +17,7 @@ BUILDINGS : 'buildings' ;           // mod_cat
 CADET : 'cadet' ;                   // keyword
 CAPACITY : 'capacity' ;             // keyword
 CAPTAIN : 'captain' ;               // keyword
+CAP : 'cap' ;                       // keyword
 CARAVANEERS : 'caravaneers' ;       // keyword
 CATEGORY : 'category' ;             // keyword
 CIVIC : 'civic' ;                   // keyword
@@ -53,9 +54,11 @@ HOST : 'host' ;                     // keyword
 IRONMAN : 'ironman' ;               // keyword
 IS : 'is' ;                         // keyword
 LABEL : 'label' ;                   // keyword
+LEADER : 'leader' ;                 // keyword
 LIMIT : 'limit' ;                   // keyword
 LOCALE : 'locale' ;                 // keyword
 MEGASTRUCTURES : 'megastructures' ; // mod_cat
+MODIFIER : 'modifier' ;             // keyword
 MOD : 'mod' ;                       // keyword
 NAVAL : 'naval' ;                   // keyword
 NEMESIS : 'nemesis' ;               // dlcname
@@ -97,6 +100,7 @@ LEQ : '<=' ;
 MEQ : '>=' ;
 NEQ : '!=' ;
 DEQ : '==' ;
+PLUSEQ : '+=' ;
 
 EQ : '=' ;
 STAR : '*' ;

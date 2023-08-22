@@ -3,10 +3,10 @@ import os
 import os.path
 
 from antlr4 import FileStream, CommonTokenStream, ParseTreeWalker
-from target_antlr.StellarisLexer import StellarisLexer
-from target_antlr.StellarisParser import StellarisParser
-from target_antlr.StellarisParserListener import StellarisParserListener
-from maker.Mod import Mod
+from src.antlrlib.StellarisLexer import StellarisLexer
+from src.antlrlib.StellarisParser import StellarisParser
+from src.antlrlib.StellarisParserListener import StellarisParserListener
+from src.Mod import Mod
 
 directory = sys.argv[1]
 mod_source = sys.argv[2]
@@ -15,30 +15,43 @@ class StellarisListener(StellarisParserListener):
     def enterMod(self, ctx:StellarisParser.ModContext):
         self._mod_content = None
 
+    def enterVersion_value(self, ctx:StellarisParser.Version_valueContext):
+        parent = ctx.parentCtx
+        kind = type(parent)
+        if kind == StellarisParser.Mod_versionContext:
+            pass
+        elif kind == StellarisParser.Game_versionContext:
+            pass
+        else:
+            assert(False)
+
+    def enterTechnology(self, ctx:StellarisParser.TechnologyContext):
+        self._mod_content.add_technology(ctx.name, ctx.field, ctx.cat)
+
     def enterTradition_category(self, ctx:StellarisParser.Tradition_categoryContext):
         name = ctx.name.text
         self._mod_content.add_tradition_categories(name, ctx.tree.text)
         sub = ctx.n1
         if sub is not None: # else enterTradition_item will be called by the walker
-            self._mod_content.tradition_categories[name].tradition_1 = sub.text        
+            self._mod_content.set_tradition_for_categories(name, sub.text, 1)
         sub = ctx.n2
         if sub is not None: # else enterTradition_item will be called by the walker
-            self._mod_content.tradition_categories[name].tradition_2 = sub.text
+            self._mod_content.set_tradition_for_categories(name, sub.text, 2)
         sub = ctx.n3
         if sub is not None: # else enterTradition_item will be called by the walker
-            self._mod_content.tradition_categories[name].tradition_3 = sub.text
+            self._mod_content.set_tradition_for_categories(name, sub.text, 3)
         sub = ctx.n4
         if sub is not None: # else enterTradition_item will be called by the walker
-            self._mod_content.tradition_categories[name].tradition_4 = sub.text
+            self._mod_content.set_tradition_for_categories(name, sub.text, 4)
         sub = ctx.n5
         if sub is not None: # else enterTradition_item will be called by the walker
-            self._mod_content.tradition_categories[name].tradition_5 = sub.text
+            self._mod_content.set_tradition_for_categories(name, sub.text, 5)
         sub = ctx.adopt_id
         if sub is not None: # else enterTradition_item will be called by the walker
-            self._mod_content.tradition_categories[name].tradition_adopt = sub.text
+            self._mod_content.set_tradition_for_categories(name, sub.text, 0)
         sub = ctx.finish_id
         if sub is not None: # else enterTradition_item will be called by the walker
-            self._mod_content.tradition_categories[name].tradition_finish = sub.text
+            self._mod_content.set_tradition_for_categories(name, sub.text, -1)
 
         
 
@@ -46,33 +59,36 @@ class StellarisListener(StellarisParserListener):
         parent = ctx.parentCtx
         kind = type(ctx.parentCtx)
         name = ctx.name.text
-        selectable = True
+        selectable = None
+        of = None
         if kind == StellarisParser.Tradition_categoryContext:
-            pname = parent.name.text
+            pp: StellarisParser.Tradition_categoryContext = parent
+            pname = pp.name.text
             name = f"{pname}_{name}"
-            if parent.t1 == ctx:
+            if pp.t1 == ctx:
                 self._mod_content.set_tradition_for_categories(pname, name, 1)
-            elif parent.t2 == ctx:   
+            elif pp.t2 == ctx:   
                 self._mod_content.set_tradition_for_categories(pname, name, 2)
-            elif parent.t3 == ctx:
+            elif pp.t3 == ctx:
                 self._mod_content.set_tradition_for_categories(pname, name, 3)
-            elif parent.t4 == ctx:
+            elif pp.t4 == ctx:
                 self._mod_content.set_tradition_for_categories(pname, name, 4)  
-            elif parent.t5 == ctx:
+            elif pp.t5 == ctx:
                 self._mod_content.set_tradition_for_categories(pname, name, 5)
-            elif parent.ta == ctx:
-                selectable = False
+            elif pp.ta == ctx:
+                selectable = "adopt"
                 self._mod_content.set_tradition_for_categories(pname, name, 0)  
-            elif parent.tf == ctx:
-                selectable = False
+            elif pp.tf == ctx:
+                selectable = "finish"
                 self._mod_content.set_tradition_for_categories(pname, name, -1)     
             else:
                 assert(False)
+            of = self._mod_content.tradition_categories[pname]
         elif kind == StellarisParser.ContentContext:
             pass
         else:
             assert(False)
-        self._mod_content.add_tradition(name, selectable)
+        self._mod_content.add_tradition(name, selectable, of)
 
 
 

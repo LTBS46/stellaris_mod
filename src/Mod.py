@@ -3,7 +3,6 @@ import os.path
 
 def stringify(v: str) -> str:
     return repr(v).replace("'", "\x00").replace('"', "'").replace('\x00', '"')
-    
 
 class TraditionCategory(object):
     def __init__(self, name: str, tree: str):
@@ -18,10 +17,36 @@ class TraditionCategory(object):
         self.tradition_5 = None
         self.tradition_finish = None
 
+    def get_traditions(self) -> List[str]:
+        return [self.tradition_1, self.tradition_2, self.tradition_3, self.tradition_4, self.tradition_5]
+
 class Tradition(object):
-    def __init__(self, name: str, selectable: bool):
+    def __init__(self, name: str, status: str = None, of: TraditionCategory = None):
+        assert(status in [None, "adopt", "finish"])
         self.name = name
-        self.selectable = bool
+        self.status = status
+        self.of = of
+
+    def dup_with_status(self, status: str, mod):
+        assert(status in [None, "adopt", "finish"])
+        if mod is not None:
+            assert(status not in mod.traditions)
+        tr = Tradition(self.name, status, self.of)
+        return tr
+
+    def get_name(self) -> str:
+        if self.status is None:
+            return self.name
+        elif self.status == "adopt":
+            return self.name + "_adopt"
+        elif self.status == "finish":
+            return self.name + "_finish"
+
+class Technology(object):
+    def __init__(self, name: str, domain: str, category: str):
+        self.name = name
+        self.domain = domain
+        self.category = category
 
 class Mod(object):
     def __init__(self, name: str):
@@ -29,20 +54,78 @@ class Mod(object):
         self.game_version: Tuple[int, int, int] = (3, 8, 4)
         self.mod_version: Tuple[int, int, int] = (1, 0, 0)
         self.tags: List[str] = []
+        self.require_traditions: List[str] = []
         self.tradition_categories: Dict[str, TraditionCategory] = {}
         self.traditions: Dict[str, Tradition] = {}
+        self.technology: Dict[str, Technology] = {}
+
+    def set_game_version(self, game_version: Tuple[int, int, int]):
+        self.game_version = game_version
+
+    def set_mod_version(self, mod_version: Tuple[int, int, int]):
+        self.mod_version = mod_version
 
     def add_technology(self, name: str, domain: str, category: str):
-        pass
+        self.technology[name] = Technology(name, domain, category)
 
-    def add_tradition(self, name: str, selectable: bool):
-        self.traditions[name] = Tradition(name, selectable)
+    def add_tradition(self, name: str, status: str = None, of: TraditionCategory = None):
+        tr = Tradition(name, status, of)
+        pretrad = name + "_adopt"
+        preftrad = name + "_finish"
+        self.traditions[tr.get_name()] = tr
 
     def set_tradition_for_categories(self, cat: str, trad: str, pos: int):
         assert(pos >= -1 and pos <= 5) # 0 = adopt, -1 = finish, 1~5 as expected
-        setattr(self.tradition_categories[cat], "tradition_" + {
-            0:"adopt", 1:"1", 2:"2", 3:"3", 4:"4", 5:"5", -1:"finish"
-        }[pos], trad)
+        if pos == 0:
+            pretrad = trad + "_adopt"
+            preftrad = trad + "_finish"
+            if pretrad not in self.traditions:
+                if pretrad not in self.require_traditions:
+                    if trad in self.traditions:
+                        tr = self.traditions[trad].dup_with_status("adopt", self)
+                        assert(tr.get_name() == pretrad)
+                        self.traditions[pretrad] = tr
+                    elif preftrad in self.traditions:
+                        tr = self.traditions[preftrad].dup_with_status("adopt", self)
+                        assert(tr.get_name() == pretrad)
+                        self.traditions[pretrad] = tr
+                    else:
+                        self.require_traditions.append(pretrad)
+            self.tradition_categories[cat].tradition_adopt = pretrad
+        elif pos == -1:
+            pretrad = trad + "_adopt"
+            preftrad = trad + "_finish"
+            if preftrad not in self.traditions:
+                if preftrad not in self.require_traditions:
+                    if trad in self.traditions:
+                        tr = self.traditions[trad].dup_with_status("finish", self)
+                        assert(tr.get_name() == preftrad)
+                        self.traditions[preftrad] = tr
+                    elif pretrad in self.traditions:
+                        tr = self.traditions[pretrad].dup_with_status("finish", self)
+                        assert(tr.get_name() == preftrad)
+                        self.traditions[preftrad] = tr
+                    else:
+                        self.require_traditions.append(preftrad)
+            self.tradition_categories[cat].tradition_finish = preftrad
+        else:
+            pretrad = trad + "_adopt"
+            preftrad = trad + "_finish"
+            if trad not in self.traditions:
+                if trad not in self.require_traditions:
+                    if preftrad in self.traditions:
+                        tr = self.traditions[preftrad].dup_with_status(None, self)
+                        assert(tr.get_name() == trad)
+                        self.traditions[trad] = tr
+                    elif pretrad in self.traditions:
+                        tr = self.traditions[pretrad].dup_with_status(None, self)
+                        assert(tr.get_name() == trad)
+                        self.traditions[trad] = tr
+                    else:
+                        self.require_traditions.append(trad)
+            setattr(self.tradition_categories[cat], "tradition_" + {
+                1:"1", 2:"2", 3:"3", 4:"4", 5:"5"
+            }[pos], trad)
 
     def add_tradition_categories(self, name: str, tree: str):
         self.tradition_categories[name] = TraditionCategory(name, tree)
@@ -58,8 +141,8 @@ class Mod(object):
                 "tags={\n" + \
                 "\t" + "\n\t".join(map(lambda x:repr(x.capitalize()), self.tags)) + "\n" + \
                 "}\n" + \
-                "version=" + repr(".".join(map(str, self.mod_version))) + "\n" + \
-                "supported_version=" + repr(".".join(map(str, self.game_version))) + "\n" + \
+                "version=" + repr(".".join(map(str, self.mod_version if self.mod_version else (1, 0, 0)))) + "\n" + \
+                "supported_version=" + repr(".".join(map(str, self.game_version if self.game_version else (3, 8, 4)))) + "\n" + \
                 "\n").replace("'", '"')
 
     def tradition_name(self, name: str) -> str:
@@ -121,6 +204,7 @@ class Mod(object):
         }
 
     def generate_all_the_data(self) -> Dict[str, str]:
+        print(self.require_traditions)
         return {
             "descriptor.mod": self.generate_descriptor(),
             **{os.path.join("common", file_name): content for file_name, content in self.generate_common().items() if content},

@@ -10,6 +10,8 @@ technology mytech : physics, rare {
     category = computing
 }
 
+tradition an_ida {}
+
 tradition category discipline : tree_12_11 {
     desc = switch(locale) {
         l_english: "discipline"

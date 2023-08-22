@@ -1,3 +1,3 @@
 /mod
-/target_antlr
-/maker/__pycache__
+/src/antlrlib
+/src/__pycache__

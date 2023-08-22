@@ -22,10 +22,10 @@ mod_version:
     MOD VERSION EQ version_value
     ; 
 
-version_value:  STAR
-    | INT (
-        DOT (STAR | (INT (
-            DOT (STAR | INT)
+version_value:  s1=STAR
+    | maj=INT (
+        DOT (s2=STAR | (min=INT (
+            DOT (s3=STAR | rev=INT)
         )?))
     )?;
 
@@ -57,6 +57,7 @@ content:tradition_category
     |   event
     |   aperk
     |   technology
+    |   tradition_item
 
 
     |   label
@@ -69,9 +70,15 @@ technology:
     TECHNOLOGY name=ID COLON field=(ENGINEERING|PHYSICS|SOCIETY)
     (COMMA (RARE | DANGEROUS))?
     LCURLY
-    CATEGORY EQ ID
+    CATEGORY EQ cat=ID
     description?
+    empire_modifiers?
     RCURLY
+    ;
+
+empire_modifiers: MODIFIER EQ LCURLY empire_modifier* RCURLY;
+
+empire_modifier:    LEADER CAP PLUSEQ INT
     ;
 
 label:
@@ -81,6 +88,7 @@ label:
 aperk:
     ASCENSION PERK name=ID LCURLY
     description?
+    empire_modifiers?
     RCURLY
     ;
     
@@ -113,6 +121,7 @@ tradition_category:
 tradition_item:
     TRADITION name=ID LCURLY
     description?  
+    empire_modifiers?
     RCURLY;
 
 valid_empire:
@@ -160,16 +169,18 @@ visible_empire:
     ;
 
 civic:
-    CIVIC ID
+    CIVIC name=ID
     LCURLY
-    (description?)
+    description?
+    empire_modifiers?
     RCURLY
     ;
     
 origin:
-    ORIGIN ID
+    ORIGIN name=ID
     LCURLY
-    (description?)
+    description?
+    empire_modifiers?
     RCURLY
     ;
 
